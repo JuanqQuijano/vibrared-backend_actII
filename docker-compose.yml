@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  app:
+    image: node:18-alpine
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/VibraRedDB
+    depends_on:
+      - mongodb
+    command: sh -c "npm install && node index.js"
+
+  mongodb:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=VibraRedDB
+
+volumes:
+  mongodb_data:
