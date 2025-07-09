@@ -1,0 +1,20 @@
+{
+  "name": "vibrared-backend",
+  "version": "1.0.0",
+  "description": "Backend para VibraRed con Node.js 18",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^8.0.3",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5",
+    "bcryptjs": "^2.4.3"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
