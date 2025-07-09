@@ -1,30 +1,39 @@
+// routes/commentRoutes.js
 const express = require('express');
 const Comment = require('../models/Comment');
+const Post = require('../models/Post');
+const { protect } = require('./middleware/authMiddleware');
 const router = express.Router();
 
-// Obtener comentarios de un post
+// GET /api/comments/post/:postId - Obtener comentarios de un post
 router.get('/post/:postId', async (req, res) => {
   try {
     const comments = await Comment.find({ post_id: req.params.postId })
       .populate('user_id', 'username profile_picture_url')
-      .sort({ created_at: -1 });
+      .sort({ createdAt: 'asc' });
     res.json(comments);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// Crear comentario
-router.post('/', async (req, res) => {
-  const comment = new Comment({
-    post_id: req.body.post_id,
-    user_id: req.body.user_id,
-    text: req.body.text
-  });
-
+// POST /api/comments - Crear un nuevo comentario (protegido)
+router.post('/', protect, async (req, res) => {
+  const { post_id, text } = req.body;
   try {
-    const newComment = await comment.save();
-    res.status(201).json(newComment);
+    const newComment = new Comment({
+      text,
+      post_id,
+      user_id: req.user._id,
+    });
+
+    const savedComment = await newComment.save();
+
+    // Incrementar contador de comentarios en el Post
+    await Post.findByIdAndUpdate(post_id, { $inc: { comments_count: 1 } });
+    
+    const populatedComment = await savedComment.populate('user_id', 'username profile_picture_url');
+    res.status(201).json(populatedComment);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
